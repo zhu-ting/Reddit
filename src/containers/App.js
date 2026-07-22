@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux'
-import { fetchPostsIfNeeded } from "../actions"
+import { fetchPostsIfNeeded, selectSubreddit } from "../actions"
 import Picker from '../components/Picker'
 import Posts from '../components/Posts'
+
+const HACKER_NEWS_FEEDS = ["topstories", "beststories", "jobstories"]
 
 class App extends Component {
   componentDidMount() {
@@ -10,11 +12,25 @@ class App extends Component {
     dispatch(fetchPostsIfNeeded(selectedSubreddit))
   }
 
+  componentDidUpdate(prevProps) {
+    const { dispatch, selectedSubreddit } = this.props
+    if (selectedSubreddit !== prevProps.selectedSubreddit) {
+      dispatch(fetchPostsIfNeeded(selectedSubreddit))
+    }
+  }
+
+  handleChange = nextSubreddit => {
+    this.props.dispatch(selectSubreddit(nextSubreddit))
+  }
+
   render() {
     const { selectedSubreddit, posts, error } = this.props
     return (
       <div>
-        <Picker value={selectedSubreddit} options={["topstories"]}/>
+        <Picker
+          value={selectedSubreddit}
+          onChange={this.handleChange}
+          options={HACKER_NEWS_FEEDS} />
         <p>
           Last update at {new Date().toLocaleTimeString()}
         </p>

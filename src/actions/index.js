@@ -34,7 +34,7 @@ export const receivePostsFailure = (subreddit, error) => ({
 
 const fetchPosts = subreddit => dispatch => {
   dispatch(requestPosts(subreddit))
-  return fetch('https://hacker-news.firebaseio.com/v0/topstories.json')
+  return fetch(`https://hacker-news.firebaseio.com/v0/${subreddit}.json`)
     .then(response => {
       const contentType = response.headers.get('content-type') || ''
 
