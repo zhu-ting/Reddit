@@ -11,13 +11,18 @@ class App extends Component {
   }
 
   render() {
-    const { selectedSubreddit, posts } = this.props
+    const { selectedSubreddit, posts, error } = this.props
     return (
       <div>
-        <Picker value={selectedSubreddit} options={["reactjs"]}/>
+        <Picker value={selectedSubreddit} options={["topstories"]}/>
         <p>
-          最后更新于{new Date().toLocaleTimeString()}
+          Last update at {new Date().toLocaleTimeString()}
         </p>
+        {error &&
+          <p>
+            Unable to load Hacker News：{error}
+          </p>
+        }
         <Posts posts={posts}/>
       </div>
     );
@@ -26,13 +31,14 @@ class App extends Component {
 
 const mapStateToProps = state => {
   const { selectedSubreddit, postsBySubreddit } = state
-  const { isFetching, lastUpdated, items: posts } = postsBySubreddit[selectedSubreddit] || {isFetching: true,items: []}
+  const { isFetching, lastUpdated, items: posts, error } = postsBySubreddit[selectedSubreddit] || {isFetching: true,items: []}
 
   return {
     selectedSubreddit,
     posts,
     isFetching,
-    lastUpdated
+    lastUpdated,
+    error
   }
 }
 export default connect(mapStateToProps)(App)
