@@ -1,60 +1,38 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux'
-import { fetchPostsIfNeeded, selectSubreddit } from "../actions"
+import React, { useState } from 'react'
 import Picker from '../components/Picker'
 import Posts from '../components/Posts'
+import useHackerNewsPosts from '../hooks/useHackerNewsPosts'
 
 const HACKER_NEWS_FEEDS = ["topstories", "beststories", "jobstories"]
 
-class App extends Component {
-  componentDidMount() {
-    const { dispatch, selectedSubreddit } = this.props
-    dispatch(fetchPostsIfNeeded(selectedSubreddit))
-  }
+const App = () => {
+  const [selectedSubreddit, setSelectedSubreddit] = useState('topstories')
+  const { posts, isFetching, error, lastUpdated } = useHackerNewsPosts(selectedSubreddit)
 
-  componentDidUpdate(prevProps) {
-    const { dispatch, selectedSubreddit } = this.props
-    if (selectedSubreddit !== prevProps.selectedSubreddit) {
-      dispatch(fetchPostsIfNeeded(selectedSubreddit))
-    }
-  }
-
-  handleChange = nextSubreddit => {
-    this.props.dispatch(selectSubreddit(nextSubreddit))
-  }
-
-  render() {
-    const { selectedSubreddit, posts, error } = this.props
-    return (
-      <div>
-        <Picker
-          value={selectedSubreddit}
-          onChange={this.handleChange}
-          options={HACKER_NEWS_FEEDS} />
+  return (
+    <div>
+      <Picker
+        value={selectedSubreddit}
+        onChange={setSelectedSubreddit}
+        options={HACKER_NEWS_FEEDS} />
+      {lastUpdated &&
         <p>
-          Last update at {new Date().toLocaleTimeString()}
+          Last update at {new Date(lastUpdated).toLocaleTimeString()}
         </p>
-        {error &&
-          <p>
-            Unable to load Hacker News：{error}
-          </p>
-        }
-        <Posts posts={posts}/>
-      </div>
-    );
-  }
+      }
+      {isFetching &&
+        <p>
+          Loading...
+        </p>
+      }
+      {error &&
+        <p>
+          Unable to load Hacker News：{error}
+        </p>
+      }
+      <Posts posts={posts}/>
+    </div>
+  )
 }
 
-const mapStateToProps = state => {
-  const { selectedSubreddit, postsBySubreddit } = state
-  const { isFetching, lastUpdated, items: posts, error } = postsBySubreddit[selectedSubreddit] || {isFetching: true,items: []}
-
-  return {
-    selectedSubreddit,
-    posts,
-    isFetching,
-    lastUpdated,
-    error
-  }
-}
-export default connect(mapStateToProps)(App)
+export default App
